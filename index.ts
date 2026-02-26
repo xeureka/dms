@@ -9,9 +9,9 @@ const app = express();
 app.use(express.json());
 
 // dev defined routes
-app.use("/auth", userRoute);
-app.use("/", fileRoute);
-app.use("/", shareLinkRoute);
+app.use("/api/auth", userRoute);
+app.use("/api/file", fileRoute);
+app.use("/api/share", shareLinkRoute);
 
 // test route
 app.get("/test", (req: express.Request, res: express.Response) => {
