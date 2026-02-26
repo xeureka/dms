@@ -1,0 +1,4 @@
+
+1. Getting done with bothe the academics, work and financial plan
+
+2. Setting up the full fish terminal and wakatime on neovim

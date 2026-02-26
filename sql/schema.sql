@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  username VARCHAR(200) NOT NULL,
+  email VARCHAR(200) NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  createdAt TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS files (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  originalName VARCHAR(500) NOT NULL,
+  originalName VARCHAR(500) NOT NULL,
+  filePath VARCHAR(1000) NOT NULL,
+  ownerId UUID NOT NULL,
+  createdAt TIMESTAMP NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT fk_owner
+    FOREIGN KEY (ownerId)
+    REFERENCES users(id)
+    ON DELETE CASCADE 
+);
