@@ -52,3 +52,6 @@ export const getFile = (req: express.Request, res: express.Response) => {
 // 2. make the accessRole protection for view and edit (probably hashing like git do and compare it)
 // 3. work on the RBAC for user and admin
 // 4. fix the file traversal and protecting all routes for all priveleges
+
+// Break down all the work flow and identify where u are
+// design a step by step todo to work on the above n:write
