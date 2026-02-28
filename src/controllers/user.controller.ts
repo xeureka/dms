@@ -11,7 +11,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
   const isEmailExists = await pool.query(exitQuery, existValue);
 
-  if (isEmailExists.rowCount > 0) {
+  if (isEmailExists.rowCount && isEmailExists.rowCount > 0) {
     return res
       .json({ message: "email already exist please try to login" })
       .status(409);
