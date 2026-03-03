@@ -2,6 +2,7 @@ import { type Request, type Response } from "express";
 import { upload } from "../config/multerConfig";
 import { verifyToken } from "../utils";
 import { pool } from "../config";
+import fs from "fs";
 
 export const singleUpload = async (req: Request, res: Response) => {
   try {
@@ -84,3 +85,60 @@ export const multipleUpload = async (req: Request, res: Response) => {
 };
 
 // file upload route
+
+export const fileView = async (req: Request, res: Response) => {
+  try {
+    const fileId = req.params.id;
+
+    const token = req.headers["authorization"]?.slice(7);
+
+    if (!token || token === "") {
+      return res.status(500).json({ message: "cannot find any token" });
+    }
+
+    const payload = verifyToken(token as string);
+
+    if (!payload) {
+      return res.status(500).json({ message: "Token is expired or invalid" });
+    }
+
+    const email = payload.Email;
+    const requestId = payload.Id;
+
+    const ownerCheckingQuery = "SELECT * FROM users WHERE email=$1";
+    const ownerEmailValue = [email];
+
+    const ownershipResult = await pool.query(
+      ownerCheckingQuery,
+      ownerEmailValue,
+    );
+
+    const owner_id = ownershipResult.rows[0].owner_id;
+
+    if (owner_id === requestId) {
+      // stream the file
+      const { storage_path, original_name } = ownershipResult.rows[0];
+
+      if (!fs.existsSync(storage_path)) {
+        return res.status(404).json({ message: "File missing on server" });
+      }
+
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${original_name}"`,
+      );
+
+      res.setHeader("Content-Type", "text");
+
+      const stream = fs.createReadStream(storage_path);
+      stream.pipe(res);
+    }
+
+    // TODO: CHECK IF THE USER HAVE A FILE ACCCESS HERE
+
+    return res.status(403).json({ message: "file access denined" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Finding file failed" });
+  }
+};
