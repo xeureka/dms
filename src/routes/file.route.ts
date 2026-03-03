@@ -1,9 +1,6 @@
 import express, { type Request, type Response } from "express";
 import { upload } from "../config/multerConfig";
-import {
-  multipleUpload,
-  singleUpload,
-} from "../controllers/fileUpload.controller";
+import { multipleUpload, singleUpload } from "../controllers/file.controller";
 
 const router = express.Router();
 

@@ -1,11 +1,13 @@
 import express from "express";
+import cors from "cors";
 import { connectDB } from "./src/config";
 import userRoute from "./src/routes/user.route.ts";
-import fileRoute from "./src/routes/fileUpload.route.ts";
+import fileRoute from "./src/routes/file.route.ts";
 import shareLinkRoute from "./src/routes/shareLink.route.ts";
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 // dev defined routes

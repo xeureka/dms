@@ -1,7 +1,7 @@
 import { Pool } from "pg";
 
 export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL!,
+  connectionString: process.env.NEON_URL!,
 });
 
 export async function connectDB() {
