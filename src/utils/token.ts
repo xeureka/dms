@@ -26,23 +26,3 @@ export function verifyToken(token: string): AuthTokenPayload {
   const verified = jwt.verify(token, Bun.env.ACCESS_TOKEN_SECRET!);
   return verified as AuthTokenPayload;
 }
-
-export interface ShareLinkPayload extends jwt.JwtPayload {
-  Email: string;
-  AccessRole: string;
-  FileServerPath: string;
-  FileId: string;
-}
-
-export function generateSharingToken(payload: ShareLinkPayload): string {
-  const shareToken = jwt.sign(payload, Bun.env.SHARE_TOKEN_SECRET!, {
-    expiresIn: "50min",
-  });
-
-  return shareToken;
-}
-
-export function verifySharableToken(token: string): ShareLinkPayload {
-  const payload = jwt.verify(token, Bun.env.SHARE_TOKEN_SECRET!);
-  return payload as ShareLinkPayload;
-}

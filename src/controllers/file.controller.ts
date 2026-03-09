@@ -3,6 +3,7 @@ import { upload } from "../config/multerConfig";
 import { verifyToken } from "../utils";
 import { pool } from "../config";
 import fs from "fs";
+import path from "path";
 
 export const singleUpload = async (req: Request, res: Response) => {
   try {
@@ -84,61 +85,44 @@ export const multipleUpload = async (req: Request, res: Response) => {
   }
 };
 
-// file upload route
-
-export const fileView = async (req: Request, res: Response) => {
+export const fileFetch = async (req: Request, res: Response) => {
   try {
     const fileId = req.params.id;
+    const authHeader = req.headers["authorization"];
 
-    const token = req.headers["authorization"]?.slice(7);
-
-    if (!token || token === "") {
-      return res.status(500).json({ message: "cannot find any token" });
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "No token provided" });
     }
 
+    const token = authHeader.split(" ")[1];
     const payload = verifyToken(token as string);
 
-    if (!payload) {
-      return res.status(500).json({ message: "Token is expired or invalid" });
+    const query = `
+
+    SELECT *
+    FROM files
+    WHERE id = $1
+    AND owner_id = (
+    SELECT id FROM users WHERE email=$2)`;
+
+    const values = [fileId, payload.Email];
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "File not foudn or you dot have access" });
     }
 
-    const email = payload.Email;
-    const requestId = payload.Id;
+    const filePath = result.rows[0].server_path;
 
-    const ownerCheckingQuery = "SELECT * FROM users WHERE email=$1";
-    const ownerEmailValue = [email];
-
-    const ownershipResult = await pool.query(
-      ownerCheckingQuery,
-      ownerEmailValue,
-    );
-
-    const owner_id = ownershipResult.rows[0].owner_id;
-
-    if (owner_id === requestId) {
-      // stream the file
-      const { storage_path, original_name } = ownershipResult.rows[0];
-
-      if (!fs.existsSync(storage_path)) {
-        return res.status(404).json({ message: "File missing on server" });
-      }
-
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${original_name}"`,
-      );
-
-      res.setHeader("Content-Type", "text");
-
-      const stream = fs.createReadStream(storage_path);
-      stream.pipe(res);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ message: "FIle missing on server" });
     }
 
-    // TODO: CHECK IF THE USER HAVE A FILE ACCCESS HERE
-
-    return res.status(403).json({ message: "file access denined" });
+    return res.sendFile(filePath);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Finding file failed" });
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };

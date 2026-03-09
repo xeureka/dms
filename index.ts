@@ -3,7 +3,6 @@ import cors from "cors";
 import { connectDB } from "./src/config";
 import userRoute from "./src/routes/user.route.ts";
 import fileRoute from "./src/routes/file.route.ts";
-import shareLinkRoute from "./src/routes/shareLink.route.ts";
 
 const app = express();
 
@@ -13,7 +12,6 @@ app.use(express.json());
 // dev defined routes
 app.use("/api/auth", userRoute);
 app.use("/api/file", fileRoute);
-app.use("/api/share", shareLinkRoute);
 
 // test route
 app.get("/test", (req: express.Request, res: express.Response) => {
